@@ -35,7 +35,7 @@ Connect your store to Ovesio to unlock powerful capabilities:
 
 ## Installation
 
-1.  **Download:** Download the zip archive for the plugin.
+1.  **Download:** Download the zip archive called `ovesio-ecommerce-woocommerce.zip` from the [GitHub repository](https://github.com/ovesio/ovesio-ecommerce-woocommerce/releases) section releases.
 2.  **Upload:**
     *   Log in to your WordPress Admin Dashboard.
     *   Navigate to **Plugins** > **Add New**.
