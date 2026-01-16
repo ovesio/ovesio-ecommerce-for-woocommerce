@@ -23,7 +23,7 @@ class WC_Ovesio_Ecommerce {
 
 	public static function activate() {
 		if ( ! get_option( 'ovesio_ecommerce_hash' ) ) {
-			update_option( 'ovesio_ecommerce_hash', md5( uniqid( mt_rand(), true ) ) );
+			update_option( 'ovesio_ecommerce_hash', md5( uniqid( wp_rand(), true ) ) );
 		}
 		add_option( 'ovesio_ecommerce_status', 'no' );
 		add_option( 'ovesio_ecommerce_export_duration', '12' );
@@ -40,20 +40,27 @@ class WC_Ovesio_Ecommerce {
 			'Ovesio Ecommerce',
 			'Ovesio Ecommerce',
 			'manage_options',
-			'ovesio-ecommerce',
+			'ovesio-ecommerce-for-woocommerce',
 			array( $this, 'render_settings_page' )
 		);
 	}
 
 	public function register_settings() {
-		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_status' );
-		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_export_duration' );
-		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_order_states' );
+		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_status', array( 'sanitize_callback' => 'sanitize_text_field' ) );
+		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_export_duration', array( 'sanitize_callback' => 'absint' ) );
+		register_setting( 'ovesio_ecommerce_options', 'ovesio_ecommerce_order_states', array( 'sanitize_callback' => array( $this, 'sanitize_order_states' ) ) );
+	}
+
+	public function sanitize_order_states( $input ) {
+		if ( ! is_array( $input ) ) {
+			return array();
+		}
+		return array_map( 'sanitize_text_field', $input );
 	}
 
 	public function enqueue_admin_scripts( $hook ) {
 		// Only load on our page
-		if ( $hook !== 'woocommerce_page_ovesio-ecommerce' ) {
+		if ( $hook !== 'woocommerce_page_ovesio-ecommerce-for-woocommerce' ) {
 			return;
 		}
 
@@ -68,7 +75,7 @@ class WC_Ovesio_Ecommerce {
 
 		$hash = get_option( 'ovesio_ecommerce_hash' );
         if( ! $hash ) {
-            $hash = md5( uniqid( mt_rand(), true ) );
+            $hash = md5( uniqid( wp_rand(), true ) );
 			update_option( 'ovesio_ecommerce_hash', $hash );
         }
 
@@ -81,19 +88,19 @@ class WC_Ovesio_Ecommerce {
 			<div class="ovesio-header">
 				<img src="<?php echo esc_url( $logoUrl ); ?>" alt="Ovesio Logo" class="ovesio-logo">
 				<div class="ovesio-title">
-					<h2><?php esc_html_e( 'Configuration', 'ovesio-ecommerce' ); ?></h2>
+					<h2><?php esc_html_e( 'Configuration', 'ovesio-ecommerce-for-woocommerce' ); ?></h2>
 				</div>
 			</div>
-			
+
 			<div class="ovesio-panel">
 				<div class="ovesio-intro">
-					<p><strong><?php esc_html_e( 'Connect your store to Ovesio to unlock powerful capabilities:', 'ovesio-ecommerce' ); ?></strong><br>
-					<?php esc_html_e( 'Stock Management, Forecasting, Pricing Strategy & more.', 'ovesio-ecommerce' ); ?></p>
+					<p><strong><?php esc_html_e( 'Connect your store to Ovesio to unlock powerful capabilities:', 'ovesio-ecommerce-for-woocommerce' ); ?></strong><br>
+					<?php esc_html_e( 'Stock Management, Forecasting, Pricing Strategy & more.', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
 				</div>
-				
+
 				<div class="ovesio-alert ovesio-alert-info">
-					<p><?php esc_html_e( 'Please configure the "Order Export Period" below and click Save.', 'ovesio-ecommerce' ); ?></p>
-					<p><?php esc_html_e( 'Then copy the following URLs and paste them into your Ovesio dashboard.', 'ovesio-ecommerce' ); ?></p>
+					<p><?php esc_html_e( 'Please configure the "Order Export Period" below and click Save.', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
+					<p><?php esc_html_e( 'Then copy the following URLs and paste them into your Ovesio dashboard.', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
 				</div>
 
 				<form action="options.php" method="post">
@@ -103,26 +110,26 @@ class WC_Ovesio_Ecommerce {
 					?>
 					<table class="form-table ovesio-form-table">
 						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Status', 'ovesio-ecommerce' ); ?></th>
+							<th scope="row"><?php esc_html_e( 'Status', 'ovesio-ecommerce-for-woocommerce' ); ?></th>
 							<td>
 								<select name="ovesio_ecommerce_status">
-									<option value="yes" <?php selected( get_option( 'ovesio_ecommerce_status' ), 'yes' ); ?>><?php esc_html_e( 'Enabled', 'ovesio-ecommerce' ); ?></option>
-									<option value="no" <?php selected( get_option( 'ovesio_ecommerce_status' ), 'no' ); ?>><?php esc_html_e( 'Disabled', 'ovesio-ecommerce' ); ?></option>
+									<option value="yes" <?php selected( get_option( 'ovesio_ecommerce_status' ), 'yes' ); ?>><?php esc_html_e( 'Enabled', 'ovesio-ecommerce-for-woocommerce' ); ?></option>
+									<option value="no" <?php selected( get_option( 'ovesio_ecommerce_status' ), 'no' ); ?>><?php esc_html_e( 'Disabled', 'ovesio-ecommerce-for-woocommerce' ); ?></option>
 								</select>
 							</td>
 						</tr>
 						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Order Export Period', 'ovesio-ecommerce' ); ?></th>
+							<th scope="row"><?php esc_html_e( 'Order Export Period', 'ovesio-ecommerce-for-woocommerce' ); ?></th>
 							<td>
 								<select name="ovesio_ecommerce_export_duration">
-									<option value="12" <?php selected( get_option( 'ovesio_ecommerce_export_duration' ), '12' ); ?>><?php esc_html_e( 'Last 12 Months', 'ovesio-ecommerce' ); ?></option>
-									<option value="24" <?php selected( get_option( 'ovesio_ecommerce_export_duration' ), '24' ); ?>><?php esc_html_e( 'Last 24 Months', 'ovesio-ecommerce' ); ?></option>
+									<option value="12" <?php selected( get_option( 'ovesio_ecommerce_export_duration' ), '12' ); ?>><?php esc_html_e( 'Last 12 Months', 'ovesio-ecommerce-for-woocommerce' ); ?></option>
+									<option value="24" <?php selected( get_option( 'ovesio_ecommerce_export_duration' ), '24' ); ?>><?php esc_html_e( 'Last 24 Months', 'ovesio-ecommerce-for-woocommerce' ); ?></option>
 								</select>
-								<p class="description"><?php esc_html_e( 'Choose the historical period for analysis.', 'ovesio-ecommerce' ); ?></p>
+								<p class="description"><?php esc_html_e( 'Choose the historical period for analysis.', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
 							</td>
 						</tr>
 						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Order Statuses', 'ovesio-ecommerce' ); ?></th>
+							<th scope="row"><?php esc_html_e( 'Order Statuses', 'ovesio-ecommerce-for-woocommerce' ); ?></th>
 							<td>
 								<?php
 								$statuses = wc_get_order_statuses();
@@ -138,28 +145,28 @@ class WC_Ovesio_Ecommerce {
 										</option>
 									<?php endforeach; ?>
 								</select>
-								<p class="description"><?php esc_html_e( 'Select the order statuses to export. Leave empty to use default (standard valid orders).', 'ovesio-ecommerce' ); ?></p>
+								<p class="description"><?php esc_html_e( 'Select the order statuses to export. Leave empty to use default (standard valid orders).', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
 							</td>
 						</tr>
 					</table>
 
-					<h3><?php esc_html_e( 'Data Feeds', 'ovesio-ecommerce' ); ?></h3>
+					<h3><?php esc_html_e( 'Data Feeds', 'ovesio-ecommerce-for-woocommerce' ); ?></h3>
 					<table class="form-table ovesio-form-table">
 						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Product Feed URL', 'ovesio-ecommerce' ); ?></th>
+							<th scope="row"><?php esc_html_e( 'Product Feed URL', 'ovesio-ecommerce-for-woocommerce' ); ?></th>
 							<td>
                                 <div class="ovesio-input-group">
 								    <input type="text" class="regular-text" id="product_feed_url" readonly value="<?php echo esc_url( $productFeedUrl ); ?>">
-                                    <button class="button ovesio-copy-btn" data-target="product_feed_url"><?php esc_html_e( 'Copy', 'ovesio-ecommerce' ); ?></button>
+                                    <button class="button ovesio-copy-btn" data-target="product_feed_url"><?php esc_html_e( 'Copy', 'ovesio-ecommerce-for-woocommerce' ); ?></button>
                                 </div>
 							</td>
 						</tr>
 						<tr valign="top">
-							<th scope="row"><?php esc_html_e( 'Order Feed URL', 'ovesio-ecommerce' ); ?></th>
+							<th scope="row"><?php esc_html_e( 'Order Feed URL', 'ovesio-ecommerce-for-woocommerce' ); ?></th>
 							<td>
                                 <div class="ovesio-input-group">
 								    <input type="text" class="regular-text" id="order_feed_url" readonly value="<?php echo esc_url( $orderFeedUrl ); ?>">
-                                    <button class="button ovesio-copy-btn" data-target="order_feed_url"><?php esc_html_e( 'Copy', 'ovesio-ecommerce' ); ?></button>
+                                    <button class="button ovesio-copy-btn" data-target="order_feed_url"><?php esc_html_e( 'Copy', 'ovesio-ecommerce-for-woocommerce' ); ?></button>
                                 </div>
 							</td>
 						</tr>
@@ -167,10 +174,10 @@ class WC_Ovesio_Ecommerce {
 
 					<?php submit_button(); ?>
 				</form>
-				
+
 				<div class="ovesio-alert ovesio-alert-warning">
-					<strong><?php esc_html_e( 'Security Hash:', 'ovesio-ecommerce' ); ?></strong> <?php echo esc_html( $hash ); ?><br>
-					<?php esc_html_e( 'If you uninstall and reinstall this module, this hash will change and you will need to update your URLs in Ovesio.', 'ovesio-ecommerce' ); ?>
+					<strong><?php esc_html_e( 'Security Hash:', 'ovesio-ecommerce-for-woocommerce' ); ?></strong> <?php echo esc_html( $hash ); ?><br>
+					<?php esc_html_e( 'If you uninstall and reinstall this module, this hash will change and you will need to update your URLs in Ovesio.', 'ovesio-ecommerce-for-woocommerce' ); ?>
 				</div>
 			</div>
 		</div>
@@ -178,12 +185,15 @@ class WC_Ovesio_Ecommerce {
 	}
 
 	public function handle_feed_request() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['ovesio_feed'] ) && $_GET['ovesio_feed'] == '1' ) {
-			
+
 			// Increase resources for export
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 			@set_time_limit(0);
+			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 			@ini_set('memory_limit', '1024M');
-			
+
 			header( 'Content-Type: application/json' );
 
 			if ( get_option( 'ovesio_ecommerce_status' ) !== 'yes' ) {
@@ -192,7 +202,8 @@ class WC_Ovesio_Ecommerce {
 				exit;
 			}
 
-			$hash = isset( $_GET['hash'] ) ? sanitize_text_field( $_GET['hash'] ) : '';
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended
+			$hash = isset( $_GET['hash'] ) ? sanitize_text_field( wp_unslash( $_GET['hash'] ) ) : '';
 			$configuredHash = get_option( 'ovesio_ecommerce_hash' );
 
 			if ( empty( $configuredHash ) || $hash !== $configuredHash ) {
@@ -203,7 +214,8 @@ class WC_Ovesio_Ecommerce {
 
 			require_once WC_OVESIO_PLUGIN_DIR . 'includes/class-wc-ovesio-export.php';
 			$exporter = new WC_Ovesio_Export();
-			$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : 'products';
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.NonceVerification.Recommended
+			$action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( $_GET['action'] ) ) : 'products';
 
 			if ( $action == 'orders' ) {
 				$duration = (int) get_option( 'ovesio_ecommerce_export_duration', 12 );
@@ -217,7 +229,7 @@ class WC_Ovesio_Ecommerce {
 	}
 
 	private function output_json( $data, $type ) {
-		$filename = "export_" . $type . "_" . date( 'Y-m-d' ) . ".json";
+		$filename = "export_" . $type . "_" . gmdate( 'Y-m-d' ) . ".json";
 		header( 'Content-Disposition: attachment; filename="' . $filename . '";' );
 		echo json_encode( array( 'data' => $data ), JSON_PRETTY_PRINT );
 		exit;

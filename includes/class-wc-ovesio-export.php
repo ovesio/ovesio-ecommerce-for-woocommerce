@@ -12,7 +12,7 @@ class WC_Ovesio_Export {
 	 * @return array
 	 */
 	public function get_orders_export( $duration_months = 12 ) {
-		$date_from = date( 'Y-m-d', strtotime( "-$duration_months months" ) );
+		$date_from = gmdate( 'Y-m-d', strtotime( "-$duration_months months" ) );
 
 		// Check for HPOS support (High Performance Order Storage)
 		$hpos_enabled = false;
@@ -45,6 +45,7 @@ class WC_Ovesio_Export {
 			$status_placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
 			// Remove 'wc-' prefix for database query if needed, but usually post_status is 'wc-completed'
 			
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$sql = $wpdb->prepare( "
 				SELECT ID 
 				FROM {$wpdb->posts} 
@@ -52,7 +53,9 @@ class WC_Ovesio_Export {
 				AND post_status IN ($status_placeholders) 
 				AND post_date >= %s
 			", array_merge( $statuses, array( $date_from ) ) );
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$order_ids = $wpdb->get_col( $sql );
 		}
 
@@ -130,6 +133,7 @@ class WC_Ovesio_Export {
 			AND p.post_type IN ('product', 'product_variation')
 		";
 		
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$raw_products = $wpdb->get_results( $sql );
 		
 		if ( empty( $raw_products ) ) {
@@ -153,6 +157,7 @@ class WC_Ovesio_Export {
 			WHERE post_id IN ($product_ids_sql) 
 			AND meta_key IN ('_sku', '_price', '_stock', '_stock_status', '_thumbnail_id', '_product_attributes')
 		";
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$raw_meta = $wpdb->get_results( $meta_sql );
 		
 		$meta_by_id = array();
@@ -172,6 +177,7 @@ class WC_Ovesio_Export {
             WHERE tr.object_id IN ($product_ids_sql)
             AND tt.taxonomy IN ('product_cat', 'pa_brand', 'pa_manufacturer', 'brand', 'manufacturer')
         ";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $raw_terms = $wpdb->get_results( $terms_sql );
         
         $terms_by_id = array();
@@ -343,7 +349,7 @@ class WC_Ovesio_Export {
 	}
 
 	private function clean_html( $content ) {
-		$text = strip_tags( $content );
+		$text = wp_strip_all_tags( $content );
 		$text = html_entity_decode( $text, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$text = preg_replace( '/\t+/', ' ', $text );
 		$text = preg_replace( '/ +/', ' ', $text );

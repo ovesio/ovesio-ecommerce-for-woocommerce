@@ -1,12 +1,13 @@
 <?php
 /**
- * Plugin Name: Ovesio - Ecommerce Intelligence
+ * Plugin Name: Ovesio - Ecommerce Intelligence for WooCommerce
  * Plugin URI:  https://ovesio.com
  * Description: Empowers your store with advanced AI-driven insights, stock management forecasting, and strategic consulting.
  * Version:     1.1.0
  * Author:      Ovesio
  * Author URI:  https://ovesio.com
- * Text Domain: ovesio-ecommerce
+ * License:     GPLv2 or later
+ * Text Domain: ovesio-ecommerce-for-woocommerce
  * Domain Path: /languages
  * WC requires at least: 3.0
  * WC tested up to: 10.4.3

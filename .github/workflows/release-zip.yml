@@ -19,7 +19,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          PLUGIN="ovesio-ecommerce-woocommerce"
+          PLUGIN="ovesio-ecommerce-for-woocommerce"
           BUILD_DIR="$(mktemp -d)"
           mkdir -p "${BUILD_DIR}/${PLUGIN}"
 
@@ -29,11 +29,11 @@ jobs:
             --exclude '.github' \
             --exclude '.github/'
 
-          (cd "${BUILD_DIR}" && zip -r "${GITHUB_WORKSPACE}/ovesio-ecommerce-woocommerce.zip" "${PLUGIN}")
+          (cd "${BUILD_DIR}" && zip -r "${GITHUB_WORKSPACE}/ovesio-ecommerce-for-woocommerce.zip" "${PLUGIN}")
 
       - name: Upload asset
         uses: softprops/action-gh-release@v1
         with:
-          files: ovesio-ecommerce-woocommerce.zip
+          files: ovesio-ecommerce-for-woocommerce.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
