@@ -14,7 +14,7 @@ Empowers your store with advanced AI-driven insights, stock management forecasti
 
 == Description ==
 
-**Ovesio - Ecommerce Intelligence** empowers your WooCommerce store with advanced AI-driven insights, stock management forecasting, and strategic consulting. This plugin generates secure data feeds for your products and orders, allowing the Ovesio platform to analyze your business performance in real-time.
+**Ovesio - Ecommerce Intelligence** plugin empowers your WooCommerce store with advanced AI-driven insights, stock management forecasting, and strategic consulting. This plugin generates secure data feeds for your products and orders, allowing the Ovesio platform to analyze your business performance in real-time.
 
 Connect your store to Ovesio to unlock powerful capabilities:
 
