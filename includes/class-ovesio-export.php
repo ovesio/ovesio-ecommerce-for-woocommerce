@@ -150,14 +150,15 @@ class Ovesio_Ecommerce_Export {
 		$product_id_placeholders = implode( ',', array_fill( 0, count( $product_ids_int ), '%d' ) );
 
 		// Need: _sku, _price, _stock, _stock_status, _thumbnail_id
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Need: _sku, _price, _stock, _stock_status, _thumbnail_id
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		$meta_sql = $wpdb->prepare( "
 			SELECT post_id, meta_key, meta_value
 			FROM {$wpdb->postmeta}
 			WHERE post_id IN ($product_id_placeholders)
 			AND meta_key IN ('_sku', '_price', '_stock', '_stock_status', '_thumbnail_id', '_product_attributes')
 		", $product_ids_int );
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$raw_meta = $wpdb->get_results( $meta_sql );
@@ -173,7 +174,8 @@ class Ovesio_Ecommerce_Export {
         // Let's do bulk term relationships for all IDs
 
 		// Reuse placeholders from previous query since we're using the same product IDs
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// Reuse placeholders from previous query since we're using the same product IDs
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
         $terms_sql = $wpdb->prepare( "
             SELECT tr.object_id, t.name, tt.taxonomy, t.term_id, tt.parent
             FROM {$wpdb->term_relationships} tr
@@ -182,7 +184,7 @@ class Ovesio_Ecommerce_Export {
             WHERE tr.object_id IN ($product_id_placeholders)
             AND tt.taxonomy IN ('product_cat', 'pa_brand', 'pa_manufacturer', 'brand', 'manufacturer')
         ", $product_ids_int );
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $raw_terms = $wpdb->get_results( $terms_sql );
