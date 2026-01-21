@@ -149,14 +149,19 @@ class Ovesio_Ecommerce_Export {
 		}
 
 		// 2. Bulk Fetch Post Meta (Price, SKU, Stock, Image ID)
-		$product_ids_sql = implode( ',', array_map( 'intval', $product_ids ) );
+		$product_ids_int = array_map( 'intval', $product_ids );
+		$product_id_placeholders = implode( ',', array_fill( 0, count( $product_ids_int ), '%d' ) );
+
 		// Need: _sku, _price, _stock, _stock_status, _thumbnail_id
-		$meta_sql = "
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$meta_sql = $wpdb->prepare( "
 			SELECT post_id, meta_key, meta_value
 			FROM {$wpdb->postmeta}
-			WHERE post_id IN ($product_ids_sql)
+			WHERE post_id IN ($product_id_placeholders)
 			AND meta_key IN ('_sku', '_price', '_stock', '_stock_status', '_thumbnail_id', '_product_attributes')
-		";
+		", $product_ids_int );
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$raw_meta = $wpdb->get_results( $meta_sql );
 
@@ -169,14 +174,19 @@ class Ovesio_Ecommerce_Export {
         // We only care about product_cat and maybe brands/manufacturers
         // Combining term lookups in one query is tricky, efficient way is per-taxonomy or just bulk term relationships
         // Let's do bulk term relationships for all IDs
-        $terms_sql = "
+
+		// Reuse placeholders from previous query since we're using the same product IDs
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $terms_sql = $wpdb->prepare( "
             SELECT tr.object_id, t.name, tt.taxonomy, t.term_id, tt.parent
             FROM {$wpdb->term_relationships} tr
             INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
             INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
-            WHERE tr.object_id IN ($product_ids_sql)
+            WHERE tr.object_id IN ($product_id_placeholders)
             AND tt.taxonomy IN ('product_cat', 'pa_brand', 'pa_manufacturer', 'brand', 'manufacturer')
-        ";
+        ", $product_ids_int );
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $raw_terms = $wpdb->get_results( $terms_sql );
 
