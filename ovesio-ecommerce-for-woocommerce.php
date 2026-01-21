@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Ovesio - Ecommerce for WooCommerce
+ * Plugin Name: Ovesio - Ecommerce Intelligence for WooCommerce
  * Plugin URI:  https://github.com/ovesio/ecommerce-intelligence-woocommerce-plugin
  * Description: Empowers your store with advanced AI-driven insights, stock management forecasting, and strategic consulting.
  * Version:     1.1.4
