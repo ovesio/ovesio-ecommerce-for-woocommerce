@@ -41,7 +41,18 @@ if ( ! class_exists( 'Ovesio_Ecommerce' ) ) {
 /**
  * Activation Hook
  */
-register_activation_hook( __FILE__, array( 'Ovesio_Ecommerce', 'activate' ) );
+register_activation_hook( __FILE__, 'ovesio_ecommerce_activate' );
+
+/**
+ * Activation Callback
+ */
+function ovesio_ecommerce_activate() {
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        deactivate_plugins( plugin_basename( __FILE__ ) );
+        wp_die( esc_html__( 'This plugin requires WooCommerce to be installed and active.', 'ovesio-ecommerce-for-woocommerce' ) );
+    }
+    Ovesio_Ecommerce::activate();
+}
 
 /**
  * Deactivation Hook
@@ -61,8 +72,24 @@ add_action( 'before_woocommerce_init', function() {
  * Initialize
  */
 function ovesio_ecommerce_init() {
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		add_action( 'admin_notices', 'ovesio_ecommerce_missing_wc_notice' );
+		return;
+	}
+
     if ( class_exists( 'Ovesio_Ecommerce' ) ) {
         Ovesio_Ecommerce::instance();
     }
 }
 add_action( 'plugins_loaded', 'ovesio_ecommerce_init' );
+
+/**
+ * Missing WooCommerce Notice
+ */
+function ovesio_ecommerce_missing_wc_notice() {
+	?>
+	<div class="error">
+		<p><?php echo esc_html__( 'Ovesio Ecommerce requires WooCommerce to be installed and active.', 'ovesio-ecommerce-for-woocommerce' ); ?></p>
+	</div>
+	<?php
+}
