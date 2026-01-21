@@ -12,6 +12,7 @@
  * Domain Path: /languages
  * WC requires at least: 3.0
  * WC tested up to: 10.4.3
+ * Requires Plugins: woocommerce
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

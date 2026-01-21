@@ -187,13 +187,6 @@ class WC_Ovesio_Ecommerce {
 	public function handle_feed_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['ovesio_feed'] ) && $_GET['ovesio_feed'] == '1' ) {
-
-			// Increase resources for export
-			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-			@set_time_limit(0);
-			// phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
-			@ini_set('memory_limit', '1024M');
-
 			header( 'Content-Type: application/json' );
 
 			if ( get_option( 'ovesio_ecommerce_status' ) !== 'yes' ) {
