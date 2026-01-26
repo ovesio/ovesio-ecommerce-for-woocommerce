@@ -3,7 +3,7 @@ Contributors: ovesio
 Tags: woocommerce, ecommerce, intelligence, stock management, ai
 Requires at least: 5.0
 Tested up to: 6.9
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 Requires PHP: 7.4
 WC requires at least: 3.0
 WC tested up to: 10.4.3
